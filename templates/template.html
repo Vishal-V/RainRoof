@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
+	{% if title %}
+		<title>{{ title }} - Rapters</title>
+	{% else %}
+		<title>Rapters - SIH 2019</title>
+	{% endif %}
+
+	<link href='https://fonts.googleapis.com/css?family=Lora:400,400italic|Work+Sans:300,400,500,600' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/application.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/toolkit.css') }}">
+</head>
+<body>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
+	{% block content %}
+	{% endblock %}
+	
+</body>
+</html>
