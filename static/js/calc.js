@@ -42,20 +42,3 @@
 
 		$('#returnOfInvestment').val(returnOfInvestment + ' year(s)');
 	});
-
-	btn = document.getElementById("tips");
-	btn.addEventListener("click", function(e){
-
-		if(val <= 2){
-
-			alert("Low power usage! You can use another device.");
-		}
-		else if(val === 3 || val === 4){
-			alert("Mid-range power usage for a humble home!!");
-		}
-		else if(val > 4) {
-			alert("High power usage! Please consume lesser power and save the environment!");
-		}
-
-	});
-

@@ -1,6 +1,9 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, request
 import json
 import urllib
+
+app = Flask("__app__")
+app.config['SECRET_KEY'] = 'a551d32359baf371b9095f28d45347c8b8621830'
 
 def elevation(request):
 	apikey = "AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0"
@@ -26,6 +29,7 @@ def elevation(request):
 			print ('HTTP GET Request failed.')
 	except ValueError as e:
 		print ('JSON decode failed: '+str(request))
+
 def postion(lat1,lon1,lat2,lon2):
   if(lat1>lat2):  # swaping cordinates to get range of latitude and longitude 
     temp=lat1
@@ -55,12 +59,7 @@ def postion(lat1,lon1,lat2,lon2):
   rest={}			#dictonary 
   for key in sorted(result.keys()):	#getting elevation in sorted order
     rest[key]=result[key]	
-  print(rest)		#getting elevated data in increasing order
-
-# postion(13.00011,77.00011,13.0011,77.00111)
-
-app = Flask("__app__")
-app.config['SECRET_KEY'] = 'a551d32359baf371b9095f28d45347c8b8621830'
+  return rest		#getting elevated data in increasing order
 
 @app.route('/')
 def home():
@@ -76,6 +75,11 @@ def references():
 
 @app.route('/calculator')
 def calculator():
-	return render_template('calculator.html', title='Calculator')
+	pos = postion(13.00011,77.00011,13.0011,77.00111)
+	return render_template('calculator.html', title='Calculator', position=pos)
+
+@app.route('/trial', methods=['GET'])
+def trial():
+	return render_template('trial.html')
 
 app.run(debug=True, port=5001)
