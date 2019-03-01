@@ -20,7 +20,7 @@
   </div>
 
 	<div class="block block-inverse block-fill-height app-header"
-    	 style="background-image: url({{ url_for('static', filename='images/enlightenment-unsplash.jpg') }});">
+    	 style="background-image: url({{ url_for('static', filename='images/rain-unsplash.jpg') }});">
 
   <div class="container py-4 fixed-top app-navbar">
   <nav class="navbar navbar-transparent navbar-padded navbar-toggleable-sm">
@@ -41,6 +41,9 @@
       <ul class="navbar-nav">
         <li class="nav-item px-1 ">
           <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="nav-item px-1 ">
+          <a class="nav-link" href="{{ url_for('calculator') }}">Calculator</a>
         </li>
         <li class="nav-item px-1 ">
           <a class="nav-link" href="{{ url_for('references') }}">References</a>
@@ -69,7 +72,7 @@
     <div class="row app-align-center">
 
       <div class="col-sm-5 hidden-sm-down">
-        <img class="app-iphone" src="{{ url_for('static', filename="images/adventure.jpg") }}" style="width: 440px; height: 300px">
+        <img class="app-iphone" src="{{ url_for('static', filename="images/Rainwater Harvesting.jpg") }}" style="width: 440px; height: 300px">
       </div>
 
       <div class="col-md-6 offset-md-1 col-sm-12 offset-sm-0">

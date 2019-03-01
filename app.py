@@ -13,6 +13,10 @@ def rooftop():
 
 @app.route('/references')
 def references():
-	return render_template('references.html')
+	return render_template('references.html', title='References')
+
+@app.route('/calculator')
+def calculator():
+	return render_template('calculator.html', title='Calculator')
 
 app.run(debug=True, port=5001)
