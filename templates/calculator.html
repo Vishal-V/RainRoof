@@ -1,0 +1,222 @@
+{% extends "template.html" %}
+{% block content %}
+<style type="text/css">
+	.coeff {
+		align-self: center;
+		margin-left: 260px;
+	}
+</style>
+<body>
+	<div class="stage" id="stage">
+
+	  <div class="container py-4 fixed-top app-navbar">
+	  <nav class="navbar navbar-transparent navbar-padded navbar-toggleable-sm">
+	    <button
+	      class="navbar-toggler navbar-toggler-right hidden-md-up"
+	      type="button"
+	      data-target="#stage"
+	      data-toggle="stage"
+	      data-distance="-250">
+	      <span class="navbar-toggler-icon"></span>
+	    </button>
+
+	    <a class="navbar-brand mr-auto" href="">
+
+	      <strong style= "text-decoration-color: white; font-size: 1.5em; padding: 12px; border-radius: 4px">Solarizer</strong>
+	    </a>
+
+	    <div class="hidden-sm-down text-uppercase">
+      		<ul class="navbar-nav">
+        		<li class="nav-item px-1 ">
+          		<a class="nav-link text-secondary" href="{{ url_for('home') }}">Home</a>
+        	</li>
+      		</ul>
+    	</div>
+
+	  </nav>
+	</div>
+
+<br>
+
+<div class="container-fluid col-md-12 text-center">
+				<br>
+				<img src="{{ url_for('static', filename='images/Rainwater Harvesting.jpg') }}">
+				<br><br>
+			</div>
+		<br><br>
+		<section id="first-step" class="step content-100">
+			<div class="container">
+				<h1 class="text-center section-heading">Can you go <mark class='mark-style'>Water positive</mark>?</h1>
+				<hr class="tall">
+				<div class="margin-top25">
+					<div class="row">
+						<img class="coeff" src="{{ url_for('static', filename='images/Coefficient Table.png') }}">
+						
+						<div class="col-md-12 area step1">
+
+
+							<div class="right text-center">
+								<form>
+									<div class="container">
+										<p class="text-dark form-style">Number of Fans: </p>
+										<input id="householdBDs" type="number" required value="4" min="1" max="8">
+										<span>Fans</span>
+										<br><br>
+									</div>
+									<div class="container">
+										<p class="text-dark form-style">Room ACs: </p>
+										<input id="householdBDs1" type="number" required value="1" min="1" max="8">
+										<span>ACs</span>								<br><br>
+									</div>
+									<div class="container">
+										<p class="text-dark form-style">Number of CFL bulbs: </p>
+										<input id="householdBDs2" type="number" required value="5" min="1" max="8">
+										<span>Bulbs</span>								<br>
+									</div>
+									<br>
+									<div class="container">
+										<p class="form-style">Desktop PCs </p>
+										<input id="householdBDs3" type="number" required value="2" min="1" max="8">
+										<span>PCs</span>
+									</div>
+									<div class="submit-button">
+									<br>
+										<button id="calculate" class="btn"> <a href="#second-step" class="button glow-button">Calculate</a>
+
+									</div>
+
+								</form>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class='bottom-space'>
+				</div>
+			</div>
+		</section>
+		<br><br>
+		<section id="second-step" class="step content-100">
+			<div class="container">
+				<h1 class="text-center section-heading">What you need to go solar</h1>
+				<hr class="tall">
+				<p class="text-center section-content">
+					Based on your location and household size our ML model recommends:
+				</p>
+
+				<div class="margin-top25">
+					<div class="row">
+						<div class="col-md-12 area step1 text-center">
+							<div class="right">
+								<form id="apply-form">
+									<div class="group has-value">
+										<p class="form-style">Solar panel size (sqm)</p>
+										<input id="panelSize" type="text" required value="25">
+										<br><br>
+									</div>
+									<div class="group has-value">
+										<p class="form-style">Battery Packs</p>
+										<input id="batteryPacks" type="text" required value="2">
+
+										<br><br>
+									</div>
+
+									<div class="group has-value">
+									    <p class="form-style">Total investment (INR)</p>
+										<input id="investment" type="text" required value="30.000">
+										<br><br>
+									</div>
+									<div class="group has-value">
+										<p class="form-style">Return of investment from electricity savings</p>
+										<input id="returnOfInvestment" type="text" required value="8 years">
+										<br><br>
+									</div>
+									<div class="submit-button">
+										<br>
+										<button class="btn" id="tips"><a class="button glow-button" href="#final">Solar energy tips</a>
+										</button>
+									</div>
+									<div id="solution">
+
+									</div>
+								</form>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class='bottom-space'>
+				</div>
+			</div>
+		</section>
+	<script>
+		var val = 0;
+	</script>
+	<script>
+		$('#calculate').click(function(e){
+
+			var batteryCapacity = 12; // kWh
+			var batteryPrice = 323457; // USD
+			var sunPerDay = 4; // h
+			var panelGeneration = 0.15 // kWh
+			var generatePrice = 0.3 // USD/W
+
+			var bdInKw = 10; // get from location
+			var electricityPrice = 0.12 // USD/kWh
+
+			var fans = $('#householdBDs').val();
+			var ac = $('#householdBDs1').val();
+			var cfl = $('#householdBDs2').val();
+			var pc = $('#householdBDs3').val();
+
+
+			var consumefan = (fans) * bdInKw * 0.15;
+			var consumeac = (ac) * bdInKw * 0.85;
+			var consumecfl = (cfl) * bdInKw * 0.20;
+			var consumepc = (pc) * bdInKw * 0.45;
+
+			var consumetot = consumefan + consumepc + consumecfl + consumeac;
+
+			var batteries = Math.floor(consumetot / (batteryCapacity));
+
+			$('#batteryPacks').val(batteries);
+			val = batteries;
+
+			var generateCapacity = consumetot / sunPerDay;
+
+			var panelSize = generateCapacity / panelGeneration
+			$('#panelSize').val(panelSize);
+
+			var investment = batteries * batteryPrice + generateCapacity  * generatePrice;
+
+			$('#investment').val(investment);
+
+			var returnOfInvestment = Math.floor(investment / electricityPrice / 24 / 365);
+			returnOfInvestment = Math.round(returnOfInvestment / 77);
+
+			$('#returnOfInvestment').val(returnOfInvestment + ' year(s)');
+		});
+
+		btn = document.getElementById("tips");
+		btn.addEventListener("click", function(e){
+
+			if(val <= 2){
+
+				alert("Low power usage! You can use another device.");
+			}
+			else if(val === 3 || val === 4){
+				alert("Mid-range power usage for a humble home!!");
+			}
+			else if(val > 4) {
+				alert("High power usage! Please consume lesser power and save the environment!");
+			}
+
+		});
+	</script>
+
+
+	<script src="{{ url_for('static', filename='scripts/jquery.min.js') }}"></script>
+   
+</body>
+</html>-
+{% endblock content %}
