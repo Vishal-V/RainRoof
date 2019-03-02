@@ -7,7 +7,7 @@ from PIL import Image
 from skimage.morphology import disk, opening
 
 
-im = cv2.imread('nitc.jpeg')
+im = cv2.imread('static/images/mvit.png')
 img = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 img = cv2.bitwise_not(img)
 

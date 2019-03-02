@@ -82,4 +82,8 @@ def calculator():
 def trial():
 	return render_template('trial.html')
 
+@app.route('/dashboard')
+def dashboard():
+	return render_template('dashboard.html')
+
 app.run(debug=True, port=5001)

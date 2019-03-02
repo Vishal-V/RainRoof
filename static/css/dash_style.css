@@ -1,0 +1,89 @@
+
+#pieChart {    
+	position:absolute;
+	top:10px;
+	left:10px;
+	width:400px;
+	height: 400px; 
+}
+#lineChart {    
+	position:absolute;
+	top:10px;
+	left:410px;
+	height: 150px;
+}
+#barChart {
+	position:absolute;
+	top:160px;
+	left:410px;
+	height: 250px;
+}
+.slice {
+   font-size: 12pt;
+   font-family: Verdana;
+   fill: white; //svg specific - instead of color
+   font-weight: bold;	
+  		} 
+/*for line chart*/
+.axis path, .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges; //The shape-rendering property is an SVG attribute, used here to make sure our axis and its tick mark lines are pixel-perfect. 
+}
+.line {
+  fill: none;
+  /*stroke: steelblue;*/
+  stroke-width: 3px;
+}
+.dot {
+  /*fill: white;*/
+  /*stroke: steelblue;*/
+  stroke-width: 1.5px;
+  }
+				
+.axis text {
+    font-family: Verdana;
+    font-size: 11px;
+}
+.title {
+	 font-family: Verdana;
+    font-size: 15px;	
+		
+}
+.xAxis {
+    font-family: verdana;
+    font-size: 11px;
+    fill: black;
+}  
+.yAxis {
+    font-family: verdana;
+    font-size: 11px;
+    fill: white;
+}
+  
+table {
+	border-collapse:collapse;
+	border: 0px;	
+	font-family: Verdana;	
+	color: #5C5558;
+	font-size: 12px;
+	text-align: right;			
+}
+td {
+	padding-left: 10px;		
+}
+#lineChartTitle1 {
+	font-family: Verdana;
+	font-size  : 14px;
+	fill       : lightgrey;
+	font-weight: bold;
+	text-anchor: middle;
+}
+#lineChartTitle2 {
+	font-family: Verdana;
+	font-size  : 72px;
+	fill       : grey;
+	text-anchor: middle;
+	font-weight: bold;
+	/*font-style: italic;*/
+}
