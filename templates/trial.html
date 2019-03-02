@@ -19,17 +19,28 @@
   <body>
     <div id="map"></div>
     <script>
+      let lat = 0.0;
+      let lon = 0.0;
+      const do_something = (la, lo) => {
+        lat = la;
+        lon = lo;
+      }
+
+      navigator.geolocation.getCurrentPosition(function(position) {
+         do_something(position.coords.latitude, position.coords.longitude);
+      });
+
       function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 13.147448, lng: 77.608509},
-          zoom: 18,
+          center: {lat: 13.147508, lng: 77.608799},
+          zoom: 20,
           mapTypeId: 'satellite'
         });
-        map.setTilt(0);
+        map.setTilt(45);
       }
     </script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0&callback=initMap">
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0&callback=initMap">
     </script>
   </body>
 </html>
