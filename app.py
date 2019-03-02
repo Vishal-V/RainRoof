@@ -35,8 +35,6 @@ def upload_file():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
@@ -263,4 +261,4 @@ def trial():
 def dashboard():
 	return render_template('dashboard.html')
 
-app.run(debug=True, port=5002)
+app.run(debug=True, port=5003)

@@ -67,13 +67,13 @@
 								<form>
 									<div class="container">
 										<p class="text-dark form-style">Location Scatter: </p>
-										<input id="householdBDs" type="number" required value="4" min="1" max="8">
+										<input id="members" type="number" required value="4" min="1" max="8">
 										<span></span>
 										<br><br>
 									</div>
 									<div class="container">
 										<p class="text-dark form-style">Water Usage Cluster Category: </p>
-										<input id="householdBDs1" type="number" required value="1" min="1" max="8">
+										<input id="families" type="number" required value="1" min="1" max="8">
 										<span></span>								<br><br>
 									</div>
 									<!-- <div class="container">
@@ -141,25 +141,25 @@
 											<br><br>
 										{% else %}
 											<p class="form-style">Effective Catchment Area (sqm)</p>
-											<input id="panelSize" type="text" required value="">
+											<input id="panelSize" type="text" required value="{{dims}}">
 											<br><br>
 										{% endif %}
 									</div>
 									<div class="group has-value">
-										<p class="form-style">Predicted Rainfall</p>
-										<input id="batteryPacks" type="text" required value="935.26549 mm">
+										<p class="form-style">Predicted Rainfall Volume (l)</p>
+										<input id="predictedRainfall" type="text" required value="">
 
 										<br><br>
 									</div>
 
 									<div class="group has-value">
 									    <p class="form-style">Total investment (INR)</p>
-										<input id="investment" type="text" required value="158124 INR">
+										<input id="investment" type="text" required value="">
 										<br><br>
 									</div>
 									<div class="group has-value">
 										<p class="form-style">Return of investment from water savings</p>
-										<input id="returnOfInvestment" type="text" required value="8.5 years">
+										<input id="returnOfInvestment" type="text" required value="">
 										<br><br>
 									</div>
 									<div class="submit-button">
@@ -188,46 +188,22 @@
 
 		$('#calculate').click(function(e){
 
-			var batteryCapacity = 12; // kWh
-			var batteryPrice = 323457; // USD
-			var sunPerDay = 4; // h
-			var panelGeneration = 0.15 // kWh
-			var generatePrice = 0.3 // USD/W
+			var mems = $('#members').val();
+			var fams = $('#families').val();
+			console.log(mems);
+			let mult = mems * fams;
 
-			var bdInKw = 10; // get from location
-			var electricityPrice = 0.12 // USD/kWh
+			$('#predictedRainfall').val({{dims}} * 935.12/12);
+			values = {{dims}} * 935.12/12;
+			console.log(values);
 
-			var fans = $('#householdBDs').val();
-			var ac = $('#householdBDs1').val();
-			var cfl = $('#householdBDs2').val();
-			var pc = $('#householdBDs3').val();
+			const conversion = 115812*3/(104720/12);
+			$('#investment').val(conversion * values);
+			console.log(conversion)
 
-
-			var consumefan = (fans) * bdInKw * 0.15;
-			var consumeac = (ac) * bdInKw * 0.85;
-			var consumecfl = (cfl) * bdInKw * 0.20;
-			var consumepc = (pc) * bdInKw * 0.45;
-
-			var consumetot = consumefan + consumepc + consumecfl + consumeac;
-
-			var batteries = Math.floor(consumetot / (batteryCapacity));
-
-			$('#batteryPacks').val(batteries);
-			val = batteries;
-
-			var generateCapacity = consumetot / sunPerDay;
-
-			var panelSize = generateCapacity / panelGeneration
-			$('#panelSize').val(panelSize);
-
-			var investment = batteries * batteryPrice + generateCapacity  * generatePrice;
-
-			$('#investment').val(investment);
-
-			var returnOfInvestment = Math.floor(investment / electricityPrice / 24 / 365);
-			returnOfInvestment = Math.round(returnOfInvestment / 77);
-
-			$('#returnOfInvestment').val(returnOfInvestment + ' year(s)');
+			const roi = mult/4*1.746*(115812*3)/(values*12);
+			$('#returnOfInvestment').val(roi + ' year(s)');
+			
 		});
 		btn = document.getElementById("tips");
 		btn.addEventListener("click", function(e){
