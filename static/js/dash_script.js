@@ -26,11 +26,17 @@ var     formatAsPercentage = d3.format("%"),
 function dsPieChart(){
 
     var dataset = [
-            {category: "Sweden", measure: 0.85},
-          {category: "Madagascar", measure: 0.54},
-          {category: "Portugal", measure: 0.72},
-          {category: "Russia", measure: 0.48},
-          {category: "Canada", measure: 0.33},
+            {category: "Jan", measure: 671},
+          {category: "Feb", measure: 7.501},
+          {category: "Mar", measure: 11.519},
+          {category: "Apr", measure: 45.197},
+          {category: "May", measure: 112.953},
+          { category: "July", measure: 81.103 },
+          { category: "Aug", measure: 110.723 },
+          { category: "Sep", measure: 148.896 },
+          { category: "Oct", measure: 185.0112 },
+          { category: "Nov", measure: 162.279 },
+          { category: "Dec", measure: 59.509 },
           ];
 
     var     width = 400,
