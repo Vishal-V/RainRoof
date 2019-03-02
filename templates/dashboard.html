@@ -1,17 +1,25 @@
- <!-- {% extends "template.html" %}
- {% block content %} -->
-
-  <!--<script type="text/javascript" src="d3/d3.v2.js"></script>-->
+ {% extends "template.html" %}
+ {% block content %}
   <html>
   <head>
-  	<script src="http://d3js.org/d3.v2.js"></script>
-	<script type="text/javascript" src="../static/js/dash_script.js"></script>
-  	<link rel="stylesheet" type="text/css" href="../static/css/dash_style.css">
+  	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dash_style.css') }}">
+  	<style type="text/css">
+  		.cent {
+  			margin-top: 75px;
+			margin-left: 75px;
+  		}
+  	</style>
 </head>
 <body>
-    <div id="pieChart"></div>
-    <div id="barChart"></div>  
-    <div id="lineChart"></div>
+	<div class="container">
+		<div class="col-md-8 cent">
+		    <div id="pieChart"></div>
+		    <div id="barChart"></div>  
+		    <div id="lineChart"></div>
+		</div>
+	</div>
+	<script src="{{ url_for('static', filename='js/d3.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dash_script.js') }}"></script>
  </body>
  </html>
-<!-- {% endblock content %} -->
+{% endblock content %}
