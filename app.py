@@ -45,15 +45,8 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    return render_template('calculator.html', val=1)
+
 from flask import send_from_directory
 
 # Watershed Algorithm
@@ -109,13 +102,14 @@ def Watershed(location_det):
 def midpoint(ptA,ptB):
     return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
-def measure_dim():
+def measure_dim(loc):
 
-	ap = argparse.ArgumentParser()
-	ap.add_argument("-i", "--image", required = True, help="path to input image")
-	ap.add_argument("-w", "--width", type=float, required=True, help="width of the object")
-	args = vars(ap.parse_args())
-	image = cv2.imread(args["image"])
+	# ap = argparse.ArgumentParser()
+	# ap.add_argument("-i", "--image", required = True, help="path to input image")
+	# ap.add_argument("-w", "--width", type=float, required=True, help="width of the object")
+	# args = vars(ap.parse_args())
+	image = cv2.imread(loc)
+	# image = cv2.imread(args["image"])
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	gray = cv2.GaussianBlur(gray, (7,7), 0)
 
@@ -129,7 +123,7 @@ def measure_dim():
 	pixelsPerMetric = None
 
 	for c in cnts:
-	    if cv2.contourArea(c) < 10000:
+	    if cv2.contourArea(c) < 100:
 	        continue
 	    orig = image.copy()
 	    box = cv2.minAreaRect(c)
@@ -163,7 +157,7 @@ def measure_dim():
 	dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
 	#We initialize the pixels per metric has not been established 
 	if pixelsPerMetric is None:
-	    pixelsPerMetric = dB / args['width']
+	    pixelsPerMetric = dB / 750
 	dimA = dA / pixelsPerMetric
 	dimB = dB / pixelsPerMetric
 	#to compute the final object size
@@ -174,25 +168,17 @@ def measure_dim():
 			(int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
 			0.65, (255, 0, 0), 2)
 	area = dimA*dimB
-	print(area*10)
-	 
-	# show the output image
-	cv2.imshow("Image", orig)
-	cv2.waitKey(0)
-	
+	dims = area
+	print(f'The dims: {dims}')
+	return dims
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
 	# print('./static/images/'+filename)
 	Watershed(str('./static/images/'+filename))
-	return redirect(url_for('home'))
-
-# from werkzeug import SharedDataMiddleware
-# app.add_url_rule('/uploads/<filename>', 'uploaded_file',
-#                  build_only=True)
-# app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-#     '/uploads':  app.config['UPLOAD_FOLDER']
-# })
+	dims = measure_dim(str('./static/images/'+filename))
+	dims/=10000
+	return render_template('calculator.html', val=1, dims=dims)
 
 # Least Geographic Elevation
 def elevation(request):
@@ -264,10 +250,10 @@ def rooftop():
 def references():
 	return render_template('references.html', title='References')
 
-@app.route('/calculator')
+@app.route('/calculator', methods=['GET','POST'])
 def calculator():
 	pos = postion(13.00011,77.00011,13.0011,77.00111)
-	return render_template('calculator.html', title='Calculator', position=pos)
+	return render_template('calculator.html', title='Calculator', position=pos, val=1)
 
 @app.route('/trial', methods=['GET'])
 def trial():
@@ -277,4 +263,4 @@ def trial():
 def dashboard():
 	return render_template('dashboard.html')
 
-app.run(debug=True, port=5001)
+app.run(debug=True, port=5002)

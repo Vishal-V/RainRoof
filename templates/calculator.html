@@ -5,6 +5,14 @@
 		align-self: center;
 		margin-left: 260px;
 	}
+	.coeff1 {
+		align-self: center;
+		margin-left: 450px;
+	}
+	.coeff2 {
+		align-self: center;
+		margin-left: 350px;
+	}
 </style>
 <body>
 	<div class="stage" id="stage">
@@ -100,10 +108,25 @@
 			<div class="container">
 				<h1 class="text-center section-heading">What you need to be self-sufficient</h1>
 				<hr class="tall">
+				{% if val == 1: %}
+					<div class="coeff1">
+					    <!-- <title style="margin-left: ">Upload new File</title> -->
+					    <h3>Upload new File</h3>
+					    <br>
+					</div>
+					<div class="coeff2">
+					    <form method=post enctype=multipart/form-data>
+					      <input type=file name=file>
+					      <input type=submit value=Upload>
+					    </form>
+					    <br>
+					</div>
+					<hr>
+				{% endif %}
 				<p class="text-center section-content">
 					Based on your location and household size our ML model recommends:
 				</p>
-				<div>{{ position[756.0023193359375] }}</div>
+				
 				
 		
 				<div class="margin-top25">
@@ -112,9 +135,15 @@
 							<div class="right">
 								<form id="apply-form">
 									<div class="group has-value">
-										<p class="form-style">Effective Catchment Area (sqm)</p>
-										<input id="panelSize" type="text" required value="112.3425 m">
-										<br><br>
+										{% if dims %}
+											<p class="form-style">Effective Catchment Area (sqm)</p>
+											<input id="panelSize" type="text" required value="{{ dims }}">
+											<br><br>
+										{% else %}
+											<p class="form-style">Effective Catchment Area (sqm)</p>
+											<input id="panelSize" type="text" required value="">
+											<br><br>
+										{% endif %}
 									</div>
 									<div class="group has-value">
 										<p class="form-style">Predicted Rainfall</p>
@@ -129,7 +158,7 @@
 										<br><br>
 									</div>
 									<div class="group has-value">
-										<p class="form-style">Return of investment from electricity savings</p>
+										<p class="form-style">Return of investment from water savings</p>
 										<input id="returnOfInvestment" type="text" required value="8.5 years">
 										<br><br>
 									</div>
