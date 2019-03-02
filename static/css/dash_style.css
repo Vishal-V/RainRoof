@@ -48,6 +48,7 @@
 .title {
 	 font-family: Verdana;
     font-size: 15px;	
+    color: white;
 		
 }
 .xAxis {
@@ -78,6 +79,7 @@ td {
 	fill       : lightgrey;
 	font-weight: bold;
 	text-anchor: middle;
+	color: white;
 }
 #lineChartTitle2 {
 	font-family: Verdana;
@@ -85,5 +87,6 @@ td {
 	fill       : grey;
 	text-anchor: middle;
 	font-weight: bold;
+	color: white;
 	/*font-style: italic;*/
 }

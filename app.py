@@ -1,10 +1,23 @@
+from __future__ import print_function
+from skimage.feature import peak_local_max
+from skimage.morphology import watershed
+from scipy import ndimage
+import numpy as np
+import matplotlib.pyplot as plt
 from flask import Flask, render_template, url_for, redirect, request
+from scipy.spatial import distance as dist
+from imutils import perspective
+from imutils import contours
+import argparse
+import imutils
 import json
 import urllib
+import cv2
 
 app = Flask("__app__")
 app.config['SECRET_KEY'] = 'a551d32359baf371b9095f28d45347c8b8621830'
 
+# Least Geographic Elevation
 def elevation(request):
 	apikey = "AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0"
 	url = "https://maps.googleapis.com/maps/api/elevation/json"
@@ -61,6 +74,54 @@ def postion(lat1,lon1,lat2,lon2):
     rest[key]=result[key]	
   return rest		#getting elevated data in increasing order
 
+# Watershed Algorithm
+def equalize(img):
+    ycrcb = cv2.cvtColor(img, cv2.COLOR_BGR2YCR_CB)
+    channels = cv2.split(ycrcb)
+    cv2.equalizeHist(channels[0], channels[0])
+    cv2.merge(channels, ycrcb)
+    cv2.cvtColor(ycrcb, cv2.COLOR_YCR_CB2BGR, img)
+    return img
+
+def Watershed():
+	image = cv2.imread('./static/images/location.png')
+	im = equalize(image)
+	shifted = cv2.pyrMeanShiftFiltering(image, 21, 51)
+
+	gray = cv2.cvtColor(shifted, cv2.COLOR_BGR2GRAY)
+	thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+	plt.imshow(thresh, cmap=plt.get_cmap('gray'))
+
+	D = ndimage.distance_transform_edt(thresh)
+	localMax = peak_local_max(D, indices=False, min_distance=20,
+	                          labels=thresh)
+
+	markers = ndimage.label(localMax, structure=np.ones((3, 3)))[0]
+	labels = watershed(-D, markers, mask=thresh)
+	print("[INFO] {} unique segments found".format(len(np.unique(labels)) - 1))
+
+	for label in np.unique(labels):
+	    if label == 0:
+	        continue
+	    mask = np.zeros(gray.shape, dtype="uint8")
+	    mask[labels == label] = 255
+	    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+	    
+	    for (i, c) in enumerate(cnts):
+	 
+	        ((x, y), _) = cv2.minEnclosingCircle(c)
+	        cv2.putText(image, "#{}".format(i + 1), (int(x) - 10, int(y)),
+	                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+	        cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+
+	plt.figure()
+	plt.imshow(image, cmap='gray')
+	plt.axis('off')
+	plt.show()
+
+
+
+# All routes beyond this
 @app.route('/')
 def home():
 	return render_template('index.html', title='SIH 2019')
