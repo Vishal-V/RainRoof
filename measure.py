@@ -71,10 +71,10 @@ if pixelsPerMetric is None:
 dimA = dA / pixelsPerMetric
 dimB = dB / pixelsPerMetric
 #to compute the final object size
-cv2.putText(orig, "{:.1f} square feet".format(dimA*10),
+cv2.putText(orig, "{:.1f} feet".format(dimA*10),
 		(int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
 		0.65, (255, 0, 0), 2)
-cv2.putText(orig, "{:.1f} square feet".format(dimB),
+cv2.putText(orig, "{:.1f} feet".format(dimB),
 		(int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
 		0.65, (255, 0, 0), 2)
 area = dimA*dimB
