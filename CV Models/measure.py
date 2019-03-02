@@ -7,8 +7,6 @@ import argparse
 import imutils
 import cv2
 
-def midpoint(ptA,ptB):
-    return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 #parsing of arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required = True, help="path to input image")

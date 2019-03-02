@@ -58,27 +58,27 @@
 							<div class="right text-center">
 								<form>
 									<div class="container">
-										<p class="text-dark form-style">Water consumption level: </p>
+										<p class="text-dark form-style">Location Scatter: </p>
 										<input id="householdBDs" type="number" required value="4" min="1" max="8">
-										<span>Fans</span>
+										<span></span>
 										<br><br>
 									</div>
 									<div class="container">
-										<p class="text-dark form-style">Room ACs: </p>
+										<p class="text-dark form-style">Water Usage Cluster Category: </p>
 										<input id="householdBDs1" type="number" required value="1" min="1" max="8">
-										<span>ACs</span>								<br><br>
+										<span></span>								<br><br>
 									</div>
-									<div class="container">
+									<!-- <div class="container">
 										<p class="text-dark form-style">Number of CFL bulbs: </p>
 										<input id="householdBDs2" type="number" required value="5" min="1" max="8">
 										<span>Bulbs</span>								<br>
-									</div>
+									</div> -->
 									<br>
-									<div class="container">
+									<!-- <div class="container">
 										<p class="form-style">Desktop PCs </p>
 										<input id="householdBDs3" type="number" required value="2" min="1" max="8">
 										<span>PCs</span>
-									</div>
+									</div> -->
 									<div class="submit-button">
 									<br>
 										<button id="calculate" class="btn"> <a href="#second-step" class="button glow-button">Calculate</a>
@@ -98,42 +98,44 @@
 		<br><br>
 		<section id="second-step" class="step content-100">
 			<div class="container">
-				<h1 class="text-center section-heading">What you need to go solar</h1>
+				<h1 class="text-center section-heading">What you need to be self-sufficient</h1>
 				<hr class="tall">
 				<p class="text-center section-content">
 					Based on your location and household size our ML model recommends:
 				</p>
 				<div>{{ position[756.0023193359375] }}</div>
+				
+		
 				<div class="margin-top25">
 					<div class="row">
 						<div class="col-md-12 area step1 text-center">
 							<div class="right">
 								<form id="apply-form">
 									<div class="group has-value">
-										<p class="form-style">Solar panel size (sqm)</p>
-										<input id="panelSize" type="text" required value="25">
+										<p class="form-style">Effective Catchment Area (sqm)</p>
+										<input id="panelSize" type="text" required value="112.3425 m">
 										<br><br>
 									</div>
 									<div class="group has-value">
-										<p class="form-style">Battery Packs</p>
-										<input id="batteryPacks" type="text" required value="2">
+										<p class="form-style">Predicted Rainfall</p>
+										<input id="batteryPacks" type="text" required value="935.26549 mm">
 
 										<br><br>
 									</div>
 
 									<div class="group has-value">
 									    <p class="form-style">Total investment (INR)</p>
-										<input id="investment" type="text" required value="30.000">
+										<input id="investment" type="text" required value="158124 INR">
 										<br><br>
 									</div>
 									<div class="group has-value">
 										<p class="form-style">Return of investment from electricity savings</p>
-										<input id="returnOfInvestment" type="text" required value="8 years">
+										<input id="returnOfInvestment" type="text" required value="8.5 years">
 										<br><br>
 									</div>
 									<div class="submit-button">
 										<br>
-										<button class="btn" id="tips"><a class="button glow-button" href="#final">Solar energy tips</a>
+										<button class="btn" id="tips"><a class="button glow-button" href="#final">Water Saving Tips</a>
 										</button>
 									</div>
 									<div id="solution">
