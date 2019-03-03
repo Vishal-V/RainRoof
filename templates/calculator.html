@@ -7,11 +7,11 @@
 	}
 	.coeff1 {
 		align-self: center;
-		margin-left: 450px;
+		margin-left: 0px;
 	}
 	.coeff2 {
 		align-self: center;
-		margin-left: 350px;
+		margin-left: 00px;
 	}
 </style>
 <body>
@@ -48,7 +48,7 @@
 
 <div class="container-fluid col-md-12 text-center">
 				<br>
-				<img src="{{ url_for('static', filename='images/Rainwater Harvesting.jpg') }}">
+				<img src="{{ url_for('static', filename='images/fig1.png') }}">
 				<br><br>
 			</div>
 		<br><br>
@@ -64,6 +64,23 @@
 
 
 							<div class="right text-center">
+								{% if val == 1: %}
+								<hr><br>
+								<div class="coeff1">
+								    <!-- <title style="margin-left: ">Upload new File</title> -->
+								    <h3>Upload new File</h3>
+								    <br>
+								</div>
+								<div class="coeff2">
+								    <form method=post enctype=multipart/form-data>
+								      <input type=file name=file>
+								      <input type=submit value=Upload>
+								    </form>
+								    <br>
+								</div>
+								<hr>
+							{% endif %}
+
 								<form>
 									<div class="container">
 										<p class="text-dark form-style">Location Scatter: </p>
@@ -108,23 +125,9 @@
 			<div class="container">
 				<h1 class="text-center section-heading">What you need to be self-sufficient</h1>
 				<hr class="tall">
-				{% if val == 1: %}
-					<div class="coeff1">
-					    <!-- <title style="margin-left: ">Upload new File</title> -->
-					    <h3>Upload new File</h3>
-					    <br>
-					</div>
-					<div class="coeff2">
-					    <form method=post enctype=multipart/form-data>
-					      <input type=file name=file>
-					      <input type=submit value=Upload>
-					    </form>
-					    <br>
-					</div>
-					<hr>
-				{% endif %}
+				
 				<p class="text-center section-content">
-					Based on your location and household size our ML model recommends:
+					<strong style="font-size: 1.5em;">Based on your location and household size our ML model computes:</strong>
 				</p>
 				
 				
@@ -136,30 +139,35 @@
 								<form id="apply-form">
 									<div class="group has-value">
 										{% if dims %}
-											<p class="form-style">Effective Catchment Area (sqm)</p>
+											<strong><p class="form-style">Effective Catchment Area (sqm)</p></strong>
 											<input id="panelSize" type="text" required value="{{ dims }}">
 											<br><br>
 										{% else %}
-											<p class="form-style">Effective Catchment Area (sqm)</p>
+											<strong><p class="form-style">Effective Catchment Area (sqm)</p></strong>
 											<input id="panelSize" type="text" required value="{{dims}}">
 											<br><br>
 										{% endif %}
 									</div>
 									<div class="group has-value">
-										<p class="form-style">Predicted Rainfall Volume (l)</p>
+										<strong><p class="form-style">Predicted Rainfall Volume (l)</p></strong>
 										<input id="predictedRainfall" type="text" required value="">
 
 										<br><br>
 									</div>
 
 									<div class="group has-value">
-									    <p class="form-style">Total investment (INR)</p>
+									    <strong><p class="form-style">Total investment (INR)</p></strong>
 										<input id="investment" type="text" required value="">
 										<br><br>
 									</div>
 									<div class="group has-value">
-										<p class="form-style">Return of investment from water savings</p>
+										<strong><p class="form-style">Return of investment from water savings</p></strong>
 										<input id="returnOfInvestment" type="text" required value="">
+										<br><br>
+									</div>
+									<div class="group has-value">
+										<strong><p class="form-style">Tentative Maintenance Cost (Bi-Monthly)</p></strong>
+										<input id="maintenance" type="text" required value="">
 										<br><br>
 									</div>
 									<div class="submit-button">
@@ -177,6 +185,8 @@
 					</div>
 				</div>
 				<div class='bottom-space'>
+					<br>
+					<br>
 				</div>
 			</div>
 		</section>
@@ -192,18 +202,20 @@
 			var fams = $('#families').val();
 			console.log(mems);
 			let mult = mems * fams;
-
+			
 			$('#predictedRainfall').val({{dims}} * 935.12/12);
 			values = {{dims}} * 935.12/12;
 			console.log(values);
 
 			const conversion = 115812*3/(104720/12);
 			$('#investment').val(conversion * values);
-			console.log(conversion)
+			let invest = conversion * values;
 
 			const roi = mult/4*1.746*(115812*3)/(values*12);
 			$('#returnOfInvestment').val(roi + ' year(s)');
 			
+			$('#maintenance').val(invest * 0.005)
+
 		});
 		btn = document.getElementById("tips");
 		btn.addEventListener("click", function(e){
@@ -223,5 +235,5 @@
 	</script>
    
 </body>
-</html>-
+</html>
 {% endblock content %}
