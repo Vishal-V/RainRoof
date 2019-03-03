@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
-    <title>45° Imagery</title>
+    <title>Map Imagery</title>
     <style>
 
       #map {
@@ -24,6 +24,7 @@
       const do_something = (la, lo) => {
         lat = la;
         lon = lo;
+        console.log({{position[0]}})
       }
 
       navigator.geolocation.getCurrentPosition(function(position) {
@@ -31,13 +32,20 @@
       });
 
       function initMap() {
+        var s = {{ position[756.0023193359375] }}
         var map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: lat, lng: lon},
+          center: {lat: 13.147448, lng: 77.608509},
           zoom: 20,
           mapTypeId: 'satellite'
         });
         map.setTilt(45);
-      }
+        var marker = new google.maps.Marker({
+          position: {lat: 13.147848, lng: 77.608909},
+          map: map,
+          title: 'Hello World!'
+        });
+    }
+      
     </script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0&callback=initMap">

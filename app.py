@@ -255,7 +255,8 @@ def calculator():
 
 @app.route('/trial', methods=['GET'])
 def trial():
-	return render_template('trial.html')
+	pos = postion(13.00011,77.00011,13.0011,77.00111)
+	return render_template('trial.html', position=pos)
 
 @app.route('/dashboard')
 def dashboard():
