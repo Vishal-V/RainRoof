@@ -60,3 +60,5 @@ Thus, we have opted for the OpenCV approach to accurately detect, estimate and m
 The underground map consists of two phase possible implementation:
  1. Heat Map: The heat map of the region detects varied different objects under the ground and provides a label to each of them in form of a different colour. When provided with the data of locations of the obstacles such as gas pipelines it can be used to label the specific colour and then provide an optimal path to the tank such that it does not get into the path of the gas pipelines.
  2. Searching Technique: The final half of the underground map is to provide the optimal path which is cost effective and does not hinder the existing obstacles that is gas pipelines and sewage pipes underground. This is an effective and novel approach in simple fashion and can be a generic model that can be easily adapted by any rainwater harvesting solution. Best First Search is an optimal and useful technique implemented as a possible solution for this problem.
+ ![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/undeground_map.gif)
+
