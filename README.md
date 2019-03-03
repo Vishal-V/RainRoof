@@ -1,5 +1,7 @@
 # SIH-RainWater-Harvesting
-SIH submission for GoldMan Sachs' problem statement at NIT Calicut
+SIH submission for GoldMan Sachs' problem statement at NIT Calicut. 
+- At this time, the entire project is ready to be deployed and runs on a Flask middle-tier. All values are real-time satellite images obtained from Google Maps API for the rooftop detection and estimation.   
+- The machine learning aspect of our project was used to estimate the dimensions of the roof (`OpenCV` and `Computer Vision Models`) along with rainfall estimation using a rolling forecasting model. 
   
 ### Planned components:
 1. Rooftop Detection (`Watershed Algorithm` + `Canny Edge Detection`)
@@ -44,7 +46,9 @@ Thus, we have opted for the OpenCV approach to accurately detect, estimate and m
   - The calculated area is then fed to our moldes to estimate the cost of installation of the entire setup and also finds the maintenance cost as well.
 ![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/calc.png)  
 - #### 5. Non-Drinking Water Usage Research
-![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/non.jpeg)
+    - This was a research oriented part of the project to estimate and validate the non-drinking water usage of a certain area that also takes the water usage and lifestyle into account.
+    - The papers based on water usage was maonly for domestic purposes and very few for industrial usage. Hence, our end-to-end pipeline is a B2C model rather than a B2B model
+  
 - #### 6. Basic Shared Rainwater Harvesting System (Phase 1)
+  - This is a fully working model of the Shared Rainwater Harvesting system that has an easy-to-use UI with accurate predictions using AI and Computer Vision models to predict the most optimal spot to detect the location to install the tank and also provides complete financial analysis and break-even time for the installation. Here, you can find the picture of the installation on our college hostel.
 ![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/point.png)
-- #### 7. Water Credit System Plan (Phase 2)
