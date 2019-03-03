@@ -29,10 +29,22 @@ Currently, for roof top rain water harvesting, people install water storage tank
 Thus, we have opted for the OpenCV approach to accurately detect, estimate and measure the roof dimensions.
 ![ALT-IMG](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/fig1.png)  
   
-- #### 2. Depth Estimation and Volume Calculation (for the tank)
+- #### 2. Depth Estimation using Digital Elevation Model (DEM)
   - The tank dimensions are calculated from the rooftop catchment estimates obtained from contour mapping of the roof. The bounding boxes drawn on the roof takes the scale of the images into account and calculates the catchment area from the roof detected output
   - The contour mapping draws bounding boxes on the roof and outputs the catchment area in the location matrix limit as provided by the user's image.
   - The `Depth Estimation` is computed from the `Digital Elevation Modelling algorithm` that calculates the least elevation point by partitioning the image into boxes and then calculates the local minima of every box. The resulting global minima is considered as the least elevation point for the given area matrix.  
     
 ![ALT-IMG](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/dem.png)
  
+- #### 3. Rainfall Prediction
+  - The rainfall prediction has been trained on 100 years' data for the city of Bangalore. We have used a time series plot uisng ARIMA models as well as a statistical analysis to obtain the values for various months.
+![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/dash.png)  
+- #### 4. Calculator (Cost of installation + Break-Even analysis)
+  - This is the complete analysis pipeline for the project. It initially starts with the user uploading a satellite image from our Serach bar and the backend Computer Vision models(`OpenCV`) and machine learning models(`K-Means clustering`) calculate the catchment are of the rooftops under consideration.
+  - The calculated area is then fed to our moldes to estimate the cost of installation of the entire setup and also finds the maintenance cost as well.
+![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/calc.png)  
+- #### 5. Non-Drinking Water Usage Research
+![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/non.jpeg)
+- #### 6. Basic Shared Rainwater Harvesting System (Phase 1)
+![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/point.png)
+- #### 7. Water Credit System Plan (Phase 2)
