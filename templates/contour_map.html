@@ -1,0 +1,1235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+
+        "http://www.w3.org/TR/html4/loose.dtd">
+
+
+
+<html lang="en">
+
+
+
+<head>
+
+
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="keywords" content="contour,map,online,permaculture,contour map creator,contour map" /> 
+
+	<title>Contour Map Creator</title>
+
+<style type="text/css">
+h3 {margin-bottom: 5px;}
+a:hover {text-decoration:none;}
+.VHT {border: white 1px solid;
+font-size: 12px;
+padding: 5px;
+vertical-align:top;
+
+}
+
+.PO {border: white 1px solid;
+padding: 1px;
+height: 24px;
+}
+
+.POtitle {font-size: 16px; font-weight:bold;
+padding-left:5px;}
+
+.back{
+    background-color: yellow;
+}
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="http://paulbourke.net/papers/conrec/conrec.js"></script>
+<script src="http://contourmapcreator.urgr8.ch/scripts/conrec.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0&callback=initialize"
+    async defer></script>
+ 
+<script type="text/javascript">
+
+var thisLine = "";
+var reguestHistory = "";
+var width = 0;
+var height = 0;
+var polyLineArray = new Array();
+var markers = [];
+var samplePoints = [];
+var map
+var rectangle = new Array();
+var sampleCoordinates = new Array();
+var geocoder;
+
+function getSampleCoordinates(){
+clearMap('samplepoints');
+if ($('#output').val() == ""){
+	var pointsNS = parseInt($('#pointsNS').val());
+	var pointsWE = parseInt($('#pointsWE').val());
+	}
+	else{	
+	var pointsNS = height;
+	var pointsWE = width;
+	}
+
+	LongDiff = +$('#maxLongitude').val() - +$('#minLongitude').val();
+	LatDiff = +$('#maxLatitude').val() - +$('#minLatitude').val();
+	
+	stepsizeLong = parseFloat(LongDiff)/(pointsWE-1);
+	stepsizeLat = parseFloat(LatDiff)/(pointsNS-1);
+	
+	var radius = Math.min(Math.round(getDistanceFromLatLonInM(meanLat,+$('#maxLongitude').val(),meanLat,+$('#minLongitude').val())/(width-1))/4,	
+	Math.round(getDistanceFromLatLonInM(+$('#maxLatitude').val(),meanLong,+$('#minLatitude').val(),meanLong)/(height-1))/8);
+	
+	for(iLat=0; iLat<pointsNS; iLat++) {
+	thisLatitude = +$('#minLatitude').val() + iLat*stepsizeLat;	
+	
+	for(iLong=0; iLong<pointsWE; iLong++) {
+	thisValue = +$('#minLongitude').val() + iLong*stepsizeLong;
+	sampleCoordinates.push(thisLatitude + "," + thisValue);	
+	}
+	}	
+	for (thisPoint in sampleCoordinates){
+	var c = sampleCoordinates[thisPoint].split(",");
+	var thisCenter = new google.maps.LatLng(c[0], c[1])
+	
+	var samplePointOptions = {
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      map: map,
+      center: thisCenter,
+      radius: radius}
+	samplePoints.push(new google.maps.Circle(samplePointOptions));
+	
+	}
+}
+
+function plotSamplePoints(){
+if (document.getElementById("plotSamplingPoints").checked){
+getSampleCoordinates();
+}
+else{clearMap('samplepoints');}
+}
+
+	function getData(){
+	//empty data
+	$('#output').val("");
+	
+	LongDiff = +$('#maxLongitude').val() - +$('#minLongitude').val();
+	LatDiff = +$('#maxLatitude').val() - +$('#minLatitude').val();
+	//alert(LongDiff);
+	
+	var pointsNS = parseInt($('#pointsNS').val());
+	var pointsWE = parseInt($('#pointsWE').val());
+	stepsizeLong = parseFloat(LongDiff)/(pointsWE-1);
+	stepsizeLat = parseFloat(LatDiff)/(pointsNS-1);
+	
+	var data = {};
+	var calls = [];
+	
+	// Create an ElevationService.
+	elevator = new google.maps.ElevationService();
+
+ var locations = [];
+
+	for(iLat=0; iLat<pointsNS; iLat++) {
+	thisLatitude = +$('#minLatitude').val() + iLat*stepsizeLat;	
+	
+	for(iLong=0; iLong<pointsWE; iLong++) {
+	thisValue = +$('#minLongitude').val() + iLong*stepsizeLong;
+	//searchString = searchString + thisLatitude + "," + thisValue + "|";	
+	var thisCoord = new google.maps.LatLng(thisLatitude, thisValue);
+	locations.push(thisCoord);
+}
+}
+
+
+
+	// Create a LocationElevationRequest object using the array's one value
+	var positionalRequest = {
+    'locations': locations
+	}
+	
+	//console.log(positionalRequest);
+	//alert(positionalRequest);
+	 // Initiate the location request
+  elevator.getElevationForLocations(positionalRequest, function(results, status) {
+    if (status == google.maps.ElevationStatus.OK) {
+
+      // Retrieve the first result
+      if (results[0]) {
+			var op = '';
+			var c = 0;
+		for (iRes in results){
+		var c = c + 1;
+		var del = "\t";
+		if (c == pointsWE)
+		{del = "\n"; c = 0;}
+		op += results[iRes].elevation + del;
+		}
+		document.getElementById("output").value = op;
+		saveDataTextArea();
+		calculateContour();
+		fitMap();		
+		
+      } else {
+      alert("No results found");
+      }
+    } else {
+      alert("Elevation service failed due to: " + status);
+    }
+  });
+
+
+
+searchString = searchString.slice(0,searchString.length-1);
+    request = urllib.request.urlopen(url+"?locations="+str(request)+"&key="+AIzaSyDv9C5WnFwlmPtZWMtH6EqfMhSwJrlCcD0)
+	}
+		
+
+function calculateContour(){
+clearMap('samplepoints');
+//remove existing lines
+for (thisLine in polyLineArray){
+polyLineArray[thisLine].setMap(null); //replot empty
+}
+
+//clear polylines if there
+
+allValues = document.getElementById("output").value;
+if (allValues == ""){
+alert("No data available. Click [get data] first or copy data in the data field manually.");
+}
+else{
+
+calculate = allValues.split(/\s+/);
+while (calculate[calculate.length-1] == ""){
+calculate.pop(); //remove last empty entries
+}
+var calculateNr = [];
+var sum = 0;
+for(var iNr in calculate)
+{calculateNr[iNr] = parseFloat(calculate[iNr]);
+sum = sum + calculateNr[iNr];
+}
+
+var min = Math.min.apply(Math,calculateNr);
+var max = Math.max.apply(Math,calculateNr);
+var mean = sum/calculateNr.length;
+
+//create matrix
+var lineArray = allValues.split("\n");
+//remove empty lines at end
+while (lineArray[lineArray.length-1] == ""){
+lineArray.pop();
+}
+
+
+var matrix = new Array();
+for(var iLine in lineArray)
+{
+matrix[iLine] = lineArray[iLine].split("\t");
+}
+
+
+
+
+
+//set levels
+//////////////
+var level = new Array();
+if (document.getElementById("levelModeAuto").checked){
+nstep = parseInt(document.getElementById("nContour").value) + parseInt(1);
+var step = (max-min)/nstep;
+for (var iLevel = 1; iLevel < nstep; iLevel++) {
+level[iLevel-1] = parseFloat(min + step * iLevel);
+}
+}
+
+if (document.getElementById("levelModeCustom").checked){
+level = document.getElementById("customContour").value.split(",");
+if (document.getElementById('unitFeet').checked == true){
+for (var iLevel in level){
+level[iLevel] = Math.round(level[iLevel]*0.3048);
+}
+}
+}
+
+if (document.getElementById("levelInterval").checked){
+step = parseFloat(document.getElementById("intervalContour").value);
+if (document.getElementById('unitFeet').checked == true){
+step = parseFloat(document.getElementById("intervalContour").value)*0.3048;
+}
+nstep = (max-min)/step;
+for (var iLevel = 0; iLevel < nstep; iLevel++) {
+level[iLevel] = parseFloat(min + step * iLevel);
+}}
+
+width = matrix[0].length;
+height = matrix.length;
+//alert(width + " " + height);
+//convert to numbers
+for (var iX = 0; iX<height; iX++) {
+	for (var iY = 0; iY<width; iY++) {
+	matrix[iX][iY] = +matrix[iX][iY];
+	}
+}
+
+var plotResolutionX = 500;
+var plotResolutionY = 500;
+
+//plot elevation as underlay
+svgString = "";
+kmlString = "";
+if(document.getElementById("plotElevation").checked){
+normalizedTileWidth = Math.round(plotResolutionX/width);
+normalizedTileHeight = Math.round(plotResolutionY/height);
+	for (var iX = 0; iX<height; iX++) {
+		for (var iY = 0; iY<width; iY++) {
+
+		normalizedX = Math.round(((iX)/(height))*plotResolutionX);
+		normalizedY = Math.round(((iY)/(width))*plotResolutionY);
+		
+		
+		var rgb = value2RGB(matrix[iX][iY],level[0],level[level.length-1]);
+		svgString += '<rect x="' + normalizedY + '" y="' + normalizedX + '" width="' + normalizedTileWidth + '" height="' + normalizedTileHeight + '" style="fill:rgb(' + rgb + ');" />'
+		}
+	}
+}
+
+
+var Xvalues = new Array();
+for (var iX = 1; iX<height+1; iX++) {
+Xvalues[iX-1] = iX;
+}
+var Yvalues = new Array();
+for (var iY = 1; iY<width+1; iY++) {
+Yvalues[iY-1] = iY;
+}
+
+polyLineArray = new Array();
+var allVertices = "";
+levelString = "";
+//loop over contours
+for (var iLevel in level){
+var rgb = value2RGB(level[iLevel],level[0],level[level.length-1]);
+var c = new Conrec();
+c.contour(matrix, 0, height-1, 0, width-1, Xvalues, Yvalues, 1, [level[iLevel]]);
+output = c.contourList();
+
+	for(iPath = 0; iPath<output.length; iPath++){
+		var flightPlanCoordinates = new Array();
+		var thesePoints = "";
+		var thesePointsKML = "";
+		for(iVertex = 0; iVertex<output[iPath].length; iVertex++){	
+		LongDiff = (+$('#maxLongitude').val() - +$('#minLongitude').val());
+		LatDiff = (+$('#maxLatitude').val() - +$('#minLatitude').val());
+	
+		normalizedX = ((output[iPath][iVertex].y-1)/(width-1))*plotResolutionX;
+		normalizedY = ((output[iPath][iVertex].x-1)/(height-1))*plotResolutionY;
+
+		if(document.getElementById("plotCircles").checked){
+		//plot circles
+		svgString += '<circle cx="' + normalizedX + '" cy="' + normalizedY + '" r="2" style="fill:rgb(' + rgb + ');" />'
+		}
+		
+		thesePoints += normalizedX + "," + normalizedY + " ";
+		
+		
+		//prepare overlay on google maps
+		
+
+		normalizedLat = +$('#minLatitude').val() + ((output[iPath][iVertex].x-1)/(height-1))*LatDiff;
+		normalizedLong = +$('#minLongitude').val() + ((output[iPath][iVertex].y-1)/(width-1))*LongDiff;
+		
+		thesePointsKML += normalizedLong + "," + normalizedLat + ",0. \n";
+		
+		flightPlanCoordinates.push(new google.maps.LatLng(normalizedLat, normalizedLong));		
+		}
+		
+		if(document.getElementById("plotLines").checked){
+		//plot polyline
+		svgString += '<polyline fill="none" stroke="rgb(' + rgb + ')" stroke-width="2" points="' + thesePoints + '" />'
+		kmlString += '<Placemark><name>Contour</name><description>Contour</description><LineString><coordinates>' + thesePointsKML + '</coordinates></LineString></Placemark>';
+		}
+	
+	
+	
+  flightPath = new google.maps.Polyline({
+    path: flightPlanCoordinates,
+    strokeColor: '#' + rgbToHex(rgb.split(',')[0],rgb.split(',')[1],rgb.split(',')[2]),
+    strokeOpacity: 1.0,
+    strokeWeight: 2
+  });
+	polyLineArray.push(flightPath);
+	
+	
+	}
+	
+	
+	
+	
+	
+}
+svgString += '<rect x="0" y="0" width="' + plotResolutionX + '" height="' + plotResolutionY + '" fill="none" stroke="black" stroke-width="1"/>';
+
+//print contour legend
+legendHeight = 500;
+legendWidth = 500;
+var legendString = "";
+var legendString2 = "";
+for(var iLevel in level){
+rgb = value2RGB(level[iLevel],level[0],level[level.length-1]);
+legendString += '<rect x="' + parseInt(plotResolutionX+10) + '" y="' + 24*iLevel + '" width="20" height="20" fill="rgb(' + rgb + ')" /> <text x="' + parseInt(plotResolutionX+35) + '" y="' + parseInt(24*iLevel+15) + '">' + meter2unit(level[iLevel],true) + '</text>' 
+legendString2 += '<rect x="' + 10 + '" y="' + 24*iLevel + '" width="20" height="20" fill="rgb(' + rgb + ')" /> <text x="' + 35 + '" y="' + parseInt(24*iLevel+15) + '">' + meter2unit(level[iLevel],true) + '</text>' 
+}
+
+document.getElementById("contour").innerHTML = '<svg id="contourPlot" width="' + plotResolutionX*2 + 'px" height="' + plotResolutionY + 'px" version="1.1" xmlns="http://www.w3.org/2000/svg">' + svgString + legendString + "</svg>";
+document.getElementById("copySVG").innerHTML = document.getElementById("contour").innerHTML;
+document.getElementById("copyKML").innerHTML = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document>' + kmlString + '</Document></kml>';
+
+document.getElementById("legend").innerHTML = '<svg id="contourPlot" width="' + 150 + 'px" height="' + 500 + 'px" version="1.1" xmlns="http://www.w3.org/2000/svg">' + legendString2 + "</svg>";
+
+document.getElementById("min").innerHTML = meter2unit(Math.round(min*10)/10,true);
+document.getElementById("max").innerHTML = meter2unit(Math.round(max*10)/10,true);
+
+LongDiff = +$('#maxLongitude').val() - +$('#minLongitude').val();
+LatDiff = +$('#maxLatitude').val() - +$('#minLatitude').val();
+meanLong = (+$('#maxLongitude').val() - +$('#minLongitude').val())/2;
+meanLat = (+$('#maxLatitude').val() - +$('#minLatitude').val())/2;
+stepsizeLong = parseFloat(LongDiff)/(width-1);
+stepsizeLat = parseFloat(LatDiff)/(height-1);
+document.getElementById("WEstep").innerHTML = meter2unit(Math.round(getDistanceFromLatLonInM(meanLat,+$('#maxLongitude').val(),meanLat,+$('#minLongitude').val())/(width-1)),true);
+document.getElementById("NSstep").innerHTML = meter2unit(Math.round(getDistanceFromLatLonInM(+$('#maxLatitude').val(),meanLong,+$('#minLatitude').val(),meanLong)/(height-1)),true);
+
+
+for (iLine in polyLineArray){
+polyLineArray[iLine].setMap(map);
+}
+
+if (document.getElementById("plotSamplingPoints").checked){
+getSampleCoordinates();
+}
+
+}}	
+
+
+
+
+
+function initialize() {
+ geocoder = new google.maps.Geocoder();
+  var myLatLng = new google.maps.LatLng(0, 0);
+  var mapOptions = {
+    zoom: 2,
+    center: myLatLng,
+    mapTypeId: google.maps.MapTypeId.HYBRID
+  };
+
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+    google.maps.event.addListener(map, 'click', function(event) {
+    addMarker(event.latLng);
+  });
+
+  
+  //flightPath.setMap(map);
+}
+
+function setCoords() {
+if (markers.length == 2){
+//console.log(markers.length);
+NWc = markers[0].getPosition();
+SEc = markers[1].getPosition();
+document.getElementById("minLatitude").value = NWc.lat('get');
+document.getElementById("minLongitude").value = NWc.lng('get');
+document.getElementById("maxLatitude").value = SEc.lat('get');
+document.getElementById("maxLongitude").value = SEc.lng('get');
+getData();
+}
+else if (
+document.getElementById("minLatitude").value != "" && 
+document.getElementById("minLongitude").value != "" && 
+document.getElementById("maxLatitude").value != "" &&
+document.getElementById("maxLongitude").value != ""){
+getData();
+}
+else{
+alert("Define an area first by clicking on the map, defining two diagonal corners of a rectangle.");
+}}
+
+function addMarker(location) {
+if (markers.length < 2){
+  var marker = new google.maps.Marker({
+    position: location,
+	draggable: true,	
+    map: map
+  });
+  
+  markers.push(marker);
+  
+  google.maps.event.addListener(markers[markers.length-1], "position_changed", function() {changeRectangle()});
+  
+  
+  //if 2, draw rectangle
+  if (markers.length == 2){
+  drawRectangle();
+  }
+}
+}
+
+function drawRectangle(){
+var b = "";
+var c = new Array();
+c[0] = document.getElementById("minLatitude").value;
+c[1] = document.getElementById("minLongitude").value;
+c[2] = document.getElementById("maxLatitude").value;
+c[3] = document.getElementById("maxLongitude").value;
+if (markers.length == 2){
+	NWc = markers[0].getPosition();
+	SEc = markers[1].getPosition();
+	b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(Math.max(NWc.lat('get'),SEc.lat('get')), Math.min(NWc.lng('get'),SEc.lng('get'))),
+    new google.maps.LatLng(Math.min(NWc.lat('get'),SEc.lat('get')), Math.max(NWc.lng('get'),SEc.lng('get'))));
+	
+}
+else if (c[0] != "" && c[1] != "" && c[2] != "" && c[3] != ""){
+b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(Math.max(c[0],c[2]), Math.min(c[1],c[3])),
+    new google.maps.LatLng(Math.min(c[0],c[2]), Math.max(c[1],c[3])));
+}
+
+	if (b!="") {
+	clearMap('rectangle');
+    rectangle = new google.maps.Rectangle({
+    strokeColor: '#000000',
+    strokeOpacity: 0.8,
+    strokeWeight: 1,
+    fillColor: '#000000',
+    fillOpacity: 0.15,
+    map: map,
+    bounds: b    
+  });
+ } 
+}
+
+function changeRectangle(){
+if (markers.length == 2){
+if (rectangle.length!=0){
+NWc = markers[0].getPosition();
+SEc = markers[1].getPosition();
+
+b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(Math.max(NWc.lat('get'),SEc.lat('get')), Math.min(NWc.lng('get'),SEc.lng('get'))),
+    new google.maps.LatLng(Math.min(NWc.lat('get'),SEc.lat('get')), Math.max(NWc.lng('get'),SEc.lng('get'))));	
+rectangle.setBounds(b);
+}
+else{drawRectangle();}
+}
+}
+
+function fitMap(){
+var c = new Array();
+c[0] = document.getElementById("minLatitude").value;
+c[1] = document.getElementById("minLongitude").value;
+c[2] = document.getElementById("maxLatitude").value;
+c[3] = document.getElementById("maxLongitude").value;
+
+if (c[0] != "" && c[1] != "" && c[2] != "" && c[3] != ""){
+b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(Math.max(c[0],c[2]), Math.min(c[1],c[3])),
+    new google.maps.LatLng(Math.min(c[0],c[2]), Math.max(c[1],c[3])));
+	map.fitBounds(b);
+}
+}
+
+function loadExample(){
+document.getElementById("minLatitude").value = 47.680992;
+document.getElementById("minLongitude").value = 8.606708;
+document.getElementById("maxLatitude").value = 47.672930;
+document.getElementById("maxLongitude").value = 8.626277;
+document.getElementById("output").value = document.getElementById("example").value;
+b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(47.68391008006566,8.60177993774414),
+    new google.maps.LatLng(47.67024262174783,8.63100528717041));
+map.fitBounds(b);
+calculateContour();
+document.getElementById("savedData").options[0].selected = true;
+}
+
+function clearMap(what){
+
+if (what == "rectangle" || what == "all"){
+if (rectangle.length!=0){
+rectangle.setMap(null);
+rectangle = [];
+}}
+
+if (what == "marker" || what == "all"){
+for (iM in markers){
+markers[iM].setMap(null);
+}
+markers = [];
+}
+
+if (what == "contour" || what == "all"){
+for (iL in polyLineArray){
+polyLineArray[iL].setMap(null);
+}
+polyLineArray = [];
+}
+
+if (what == "samplepoints" || what == 'all'){
+for (iSP in samplePoints){
+samplePoints[iSP].setMap(null);
+}
+samplePoints = [];
+sampleCoordinates = [];
+}
+
+document.getElementById("clearMapMenu").options[0].selected = true;
+
+}
+
+
+/////////////////////
+//saving and loading
+/////////////////////
+
+function saveCurrentData(){
+if ($('#minLatitude').val() == "" || $('#minLongitude').val() == "" || $('#maxLatitude').val() == "" || $('#maxLongitude').val() == "" || document.getElementById("output").value == ""){
+alert("No data to save.");}
+else{
+var cookieName = prompt("Name", "");
+if (cookieName != null){
+if (cookieName == "example" || cookieName == "load data from cookie" || cookieName == "remove cookie")
+{alert("Name not allowed");}
+else{
+saveToCookie("SAVEDDATA" + cookieName);
+}}}}
+
+function saveToCookie(myCookieName){
+if (myCookieName == ""){
+myCookieName = "SAVEDDATAautosave";
+}
+//prepare data
+var exportData = "";
+exportData += "NE|" + $('#minLatitude').val() + "t" + $('#minLongitude').val() + "||";
+exportData += "SW|" + $('#maxLatitude').val() + "t" + $('#maxLongitude').val() + "||";
+roundedData = roundElevationData();
+//alert(document.cookie.length);
+var n = roundedData.split("\n|\t")
+//alert(document.cookie.length + roundedData.length);
+if (document.cookie.length + roundedData.length > 8000){
+alert("Too much data to store in cookies. Delete some saved cookie data and try again or use manual saving/loading through text areas below.");
+}
+else{
+//exportData += "ElevationData|" + document.getElementById("output").value.replace(/\t/g,"t").replace(/\n/g,"n") + "||";
+exportData += "ElevationData|" + roundedData.replace(/\t/g,"t").replace(/\n/g,"n") + "||";
+document.getElementById("debug").value = roundedData;
+var exdays = 365;
+var exdate=new Date();
+exdate.setDate(exdate.getDate() + exdays);
+var c_value=exportData + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+document.cookie = myCookieName + "=" + c_value;
+updateSavedNameList();
+}
+}
+
+function loadFromCookie(cookieName){
+if (cookieName == "example"){loadExample();}
+else if (cookieName == "load data from cookie"){}
+else{
+cookieName = "SAVEDDATA" + cookieName;
+//http://www.javascripter.net/faq/readingacookie.htm
+var re = new RegExp('[; ]'+cookieName+'=([^\\s;]*)');
+var importDataString = (' '+document.cookie).match(re);
+//console.log(importDataString);
+if (importDataString[1] != "") {
+var importDataArray = new Array();
+importDataArray = importDataString[1].split("\||");
+
+var thisEntry, c1,c2,d
+for (iE in importDataArray){
+thisEntry = importDataArray[iE].split("\|")
+
+if (thisEntry[0] == "NE"){
+c1 = thisEntry[1].split("t");
+document.getElementById("minLatitude").value = c1[0];
+document.getElementById("minLongitude").value = c1[1];
+}
+
+if (thisEntry[0] == "SW"){
+c2 = thisEntry[1].split("t");
+document.getElementById("maxLatitude").value = c2[0];
+document.getElementById("maxLongitude").value = c2[1];
+}
+
+if (thisEntry[0] == "ElevationData"){
+d = thisEntry[1].replace(/n/g,"\n").replace(/t/g,"\t");
+//console.log(d);
+document.getElementById("output").value = d;
+}}
+
+b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(c1[0],c1[1]),
+    new google.maps.LatLng(c2[0],c2[1]));
+clearMap('all');
+drawRectangle();
+calculateContour();
+map.fitBounds(b);
+saveDataTextArea();
+//alert("Data loaded successfully.")
+document.getElementById("savedData").options[0].selected = true;
+}}}
+
+function removeCookie(name) {
+if (name != "remove cookie"){
+var answer = confirm("Remove saved data '" + name + "'?");
+if (answer){
+document.cookie = "SAVEDDATA" + name +
+'=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
+updateSavedNameList();
+}}}
+
+function roundElevationData(){
+var allValues = document.getElementById("output").value;
+//create matrix
+var lineArray = allValues.split("\n");
+//remove empty lines at end
+while (lineArray[lineArray.length-1] == ""){
+lineArray.pop();
+}
+var matrix = new Array();
+for(var iLine in lineArray)
+{
+matrix[iLine] = lineArray[iLine].split("\t");
+}
+//console.log(matrix);
+var newString = ""
+//convert to numbers
+for (var iX = 0; iX<height; iX++) {
+	for (var iY = 0; iY<width; iY++) {
+	matrix[iX][iY] = Math.round(+matrix[iX][iY]*10)/10;
+	newString += matrix[iX][iY];
+	if (iY == width-1){	newString += "\n";}
+	else {newString += "\t"}
+	}
+}
+return newString;
+}
+
+function getSavedDataNames(){
+var c_value = document.cookie;
+var savedDataNames = new Array();
+if (c_value != ''){
+cookieArray = c_value.split(";");
+for (iCookie in cookieArray){
+thisCookie = cookieArray[iCookie].split("=");
+if (thisCookie[0].match(/SAVEDDATA/)){
+var thisName = thisCookie[0].replace("SAVEDDATA","").trim();
+//for some reason there is a space coming from somewhere... use trim as workaround
+savedDataNames.push(thisName);
+}}
+}
+return savedDataNames;
+}
+
+function updateSavedNameList(){
+var nameList = getSavedDataNames();
+nameList.push("example");
+nameList.push("load data from cookie");
+nameList.reverse();
+var select = document.getElementById("savedData");
+//console.log(nameList);
+select.options.length = 0;
+document.getElementById("deleteCookieList").options.length = 0;
+for (iName in nameList){
+select.options[select.options.length] = new Option(nameList[iName].trim(),nameList[iName].trim());
+if (iName == 0){
+document.getElementById("deleteCookieList").options[document.getElementById("deleteCookieList").options.length] = new Option("remove cookie","remove cookie");
+}
+if (iName > 1){
+document.getElementById("deleteCookieList").options[document.getElementById("deleteCookieList").options.length] = new Option(nameList[iName].trim(),nameList[iName].trim());
+}
+}
+if (nameList.length == 0){
+select.style.display = "none";
+}
+else{select.style.display = "";}
+}
+
+
+/////////////
+//save manual
+/////////////
+
+function saveDataTextArea(){
+//prepare data
+var exportData = "";
+exportData += $('#minLatitude').val() + "\t" + $('#minLongitude').val() + "\t" + $('#maxLatitude').val()  + "\t" + $('#maxLongitude').val() + "\n";
+exportData += document.getElementById("output").value;
+document.getElementById("SaveDataOutput").value = exportData;
+}
+
+
+function importDataTextArea(){
+//prepare data
+var importDataString = document.getElementById("ImportDataTextArea").value;
+if (importDataString != "") {
+var importDataArray = new Array();
+importDataArray = importDataString.split("\n");
+var c = new Array();
+c = importDataArray[0].split("\t");
+document.getElementById("minLatitude").value = c[0];
+document.getElementById("minLongitude").value = c[1];
+document.getElementById("maxLatitude").value = c[2];
+document.getElementById("maxLongitude").value = c[3];
+importDataArray.shift();
+document.getElementById("output").value = importDataArray.join("\n");
+b = new google.maps.LatLngBounds(
+	new google.maps.LatLng(c[0],c[1]),
+    new google.maps.LatLng(c[2],c[3]));
+	clearMap('all');
+drawRectangle();
+calculateContour();
+map.fitBounds(b);
+//alert("Data loaded successfully. Click the button <draw contours> to overlay contours.")
+}}		
+
+
+
+
+//google.maps.event.addDomListener(window, 'load', initialize);
+
+function addFullScreenOption(){
+el = document.getElementById("resolution");
+content = el.innerHTML;
+content += '<option value="' + screen.width + 'x' + screen.height + '">Fullscreen</option>';
+el.innerHTML = content;
+//alert(content);
+/*
+//cf http://www.mredkj.com/tutorials/tutorial005.html
+//console.log(document.getElementById("resolution"));
+
+var newOption = document.createElement('option');
+newOption.text = 'Fullscreen (' + screen.width + 'x' + screen.height + ")";
+newOption = screen.width + 'x' + screen.height;
+var selectRes = document.getElementById('resolution');
+
+try {
+selectRes.add(newOption, null); // standards compliant; doesn't work in IE
+}
+catch(ex) {
+selectRes.add(newOption); // IE only
+}
+*/
+
+//alert(screen.width);
+}
+
+function setResolution(){
+//alert(document.getElementById("resolution").value);
+if (document.getElementById("resolution").value != ""){
+document.getElementById("map-canvas").style["width"] = document.getElementById("resolution").value.replace(/x.*/,"") + "px";
+document.getElementById("map-canvas").style["height"] = document.getElementById("resolution").value.replace(/.*x/,"") + "px";
+google.maps.event.trigger(map, 'resize');
+document.getElementById("resolution").options[0].selected = true;
+//fitMap();
+}}
+
+
+
+//////////////////
+//search map
+//////////////////
+
+function searchMap(){
+var searchterm = $('#searchterm').val();
+if (searchterm != ""){
+  geocoder.geocode( { 'address': searchterm}, function(results, status) {
+  //console.log(results);
+    if (status == google.maps.GeocoderStatus.OK) {
+      map.setCenter(results[0].geometry.location);
+	  map.fitBounds(results[0].geometry.viewport);
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+}}
+
+function searchIfEnter(event) {
+		if (event.keyCode == 13) {
+			searchMap();
+		}
+}
+
+
+
+//////////////////
+//helper functions
+//////////////////
+
+function value2RGB(value,min,max){
+//value2RGB maps scales a value to fit a colorspace and returnd RGB values as "<R>,<G>,<B>"
+//if min and max are equal default to black
+var thisR, thisG, thisB;
+
+if (min==max){
+//default
+output = "0,0,0";
+}
+else if (value < min){
+output = "0,0,255";
+}
+else if (value > max){
+output = "255,0,0";
+}
+
+else{
+thisNormalizedValue = parseInt((value-min)/(max-min)*1023); //0 to 1023 n=1024
+
+if (thisNormalizedValue>767){
+//from red to yellow
+thisR = 255;
+thisG = 1023 - thisNormalizedValue; //0 to 255
+thisB = 0;
+}
+
+if (thisNormalizedValue>511 && thisNormalizedValue<768){
+//from yellow to green
+
+thisR = thisNormalizedValue - 512; //0 to 255
+thisG = 255;
+thisB = 0;
+}
+
+if (thisNormalizedValue>255 && thisNormalizedValue<512){
+//from green to cyan
+thisR = 0;
+thisG = 255;
+thisB = 511 - thisNormalizedValue; //0 to 255
+}
+
+if (thisNormalizedValue<256){
+//from cyan to blue
+thisR = 0;
+thisG = thisNormalizedValue; // 0 to 255
+thisB = 255;
+}
+output = thisR + "," + thisG + "," + thisB;
+}
+return output;
+}
+
+
+function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
+//http://www.javascripter.net/faq/rgbtohex.htm
+function toHex(n) {
+ n = parseInt(n,10);
+ if (isNaN(n)) return "00";
+ n = Math.max(0,Math.min(n,255));
+ return "0123456789ABCDEF".charAt((n-n%16)/16)
+      + "0123456789ABCDEF".charAt(n%16);
+}
+
+function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
+http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c * 1000; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
+
+
+function meter2unit(n,labelFlag){
+l = "";
+var rounding = document.getElementById('roundingOption').value;
+if (document.getElementById('unitMeter').checked == true){
+n = Math.round(n*Math.pow(10,rounding))/Math.pow(10,rounding);
+//n = Math.round(n);
+l = " m";
+}
+else{
+n = Math.round((n / 0.3048)*Math.pow(10,rounding))/Math.pow(10,rounding);
+l = " ft";
+}
+
+n = n.toFixed(rounding);
+
+if (labelFlag){
+n += l; 
+}
+return n;
+}
+
+function changeUnitLabels(){
+l = "m";
+if (document.getElementById('unitFeet').checked == true){
+l = "ft";
+}
+document.getElementById('unitCustomLevels').innerHTML = l;
+document.getElementById('unitIntervalLevels').innerHTML = l;
+}
+	
+</script>
+</head>
+
+
+
+<body  class="back" onload="updateSavedNameList();addFullScreenOption();";>
+
+<div style="margin:0px 0px 5px 0px;"><span style="font-size:30px;">Contour Map Creator </span><span style="font-size:12px;margin:0px 50px 0px 10px;"><a href="#VHT"></a></span><span style="font-size:12px;"><a href="http://contourmapcreator.idea.informer.com/"></a></span>
+<span style="margin-left:50px;"><input type="text" style="width:200px;" id="searchterm" name="searchterm" value="" onkeydown="searchIfEnter(event);"><input type="button" id="searchbutton" name="searchbutton" value="search" onclick="searchMap();"></span>
+</div>
+
+<div style="float:left;">
+
+</div>
+
+<div>
+<div style="display:none;">
+<label>Plot elevation: <input type="checkbox" name="plotElevation" id="plotElevation" ></label>
+<label>Plot lines: <input type="checkbox" name="plotLines" id="plotLines" checked></label>
+<label>Plot circles: <input type="checkbox" name="plotCircles" id="plotCircles"></label>
+</div>
+<div style="width:800px;">
+<div style="float:left"></div>
+
+
+<div style="float:right;display:none;" id="clearMarkerButton"><input type="button" onclick="clearMap('marker')" value="clear marker" title="clear marker"></div>
+<div style="float:right;display:none;" id="clearRectangleButton"><input type="button" onclick="clearMap('rectangle')" value="clear rectangle" title="clear rectangle"></div>
+<div style="float:right;display:none;" id="clearContourButton"><input type="button" onclick="clearMap('contour')" value="clear contour" title="clear contour"></div>
+</div>
+<div style="clear: both;"> </div>
+<div id="map-canvas" style="width: 800px; height: 600px;float:left;"></div><div id="legend"></div>
+<div style="clear: both;"> </div>
+
+
+<div style="float:left;">
+<table style="border:black 1px solid;border-collapse:collapse;">
+<tr><td class="PO"><span class="POtitle">Sampling</span><div style="float:right;"><input type="button" onclick="setCoords()" value="get data" title="retrieve elevation data"></div></td></tr>
+<tr><td class="PO">North West corner <br> 
+Latitude: <input type="text" name="minLatitude" id="minLatitude" value='' style="width:50px;"> Longitude: <input type="text" name="minLongitude" id="minLongitude" value='' style="width:50px;"> </td></tr>
+<tr><td class="PO">South East corner<br> 
+Latitude: <input type="text" name="maxLatitude" id="maxLatitude" value='' style="width:50px;"> Longitude: <input type="text" name="maxLongitude" id="maxLongitude" value='' style="width:50px;"></td></tr>
+<tr><td class="PO">Sampling Poinst:<br>N-S axis: <input type="text" name="pointsNS" id="pointsNS" value='8' style="width:20px;"><span style="display:none";><span> step size: </span><span id="NSstep"></span></span>
+W-E axis: <input type="text" name="pointsNS" id="pointsWE" value='8' style="width:20px;"><span style="display:none";><span> step size: </span><span id="WEstep"></span></span></td></tr>
+</table>
+</div>
+
+
+
+
+
+
+
+
+<div style="float:left;">
+<table style="border:black 1px solid;border-collapse:collapse;">
+<tr><td class="PO"><span class="POtitle">Plot Options</span><div style="float:right;"><input type="button" onclick="calculateContour()" value="redraw contours" title="draw contours"></div></td></tr>
+<tr><td class="PO"><label><input type="radio" name="levelMode" id="levelModeAuto" value="auto" checked>Number of levels: </label><input type="text" name="nContour" id="nContour" value='7' style="width:20px;"></td></tr>
+<tr><td class="PO"><label><input type="radio" name="levelMode" id="levelModeCustom" value="custom">Custom levels [<span id="unitCustomLevels">m</span>]: </label><input type="text" name="customContour" id="customContour" value='380,400,420' style="width:100px;"></td></tr>
+<tr><td class="PO"><label><input type="radio" name="levelMode" id="levelInterval" value="custom">Level Interval [<span id="unitIntervalLevels">m</span>]: </label><input type="text" name="intervalContour" id="intervalContour" value='5' style="width:20px;"></td></tr>
+<tr><td class="PO"><label><input type="checkbox" name="plotSamplingPoints" id="plotSamplingPoints" onclick="plotSamplePoints()"> Plot sampling points</label></td></tr>
+<tr><td class="PO">&nbsp;&nbsp;Units: <label><input type="radio" name="units" id="unitMeter" checked onclick="changeUnitLabels()">m</label><label><input type="radio" name="units" id="unitFeet" onclick="changeUnitLabels()">ft</label></td></tr>
+<tr><td class="PO"><span style="font-size:10px;">Rounding for legend (decimal places): &nbsp;</span><label><input type="text" name="roundingOption" id="roundingOption" value="0" style="width:20px;"></label></td></tr>
+</table>
+</div>
+
+<div style="float:left;">
+<table style="border:black 1px solid;border-collapse:collapse;">
+<tr><td class="PO"><span class="POtitle">Save/Load Cookie</span></td></tr>
+<tr><td class="PO"><input type="button" onclick="saveCurrentData()" value="save data in cookie" title="Save current data in a cookie"></td></tr>
+<tr><td class="PO"><select name="savedData" id="savedData" onchange="loadFromCookie(this.value)"></select></td></tr>
+<tr><td class="PO"><select name="deleteCookieList" id="deleteCookieList" onchange="removeCookie(this.value)"></select></td></tr>
+</table>
+</div>
+
+<div style="float:left;">
+<table style="border:black 1px solid;border-collapse:collapse;">
+<tr><td class="PO"><span class="POtitle">Other Options</span></td></tr>
+
+<tr><td class="PO">
+<div style="float:left;">
+<select name="clearMap" id="clearMapMenu" onchange="clearMap(this.value)">
+<option value=""><span class="POtitle">clear map</span></option>
+<option value="all">all</option>
+<option value="rectangle">rectangle</option>
+<option value="marker">marker</option>
+<option value="contour">contour</option>
+<option value="samplepoints">samplepoints</option>
+</select>
+</div>
+</td></tr>
+
+<tr><td class="PO">
+<div style="float:left;">
+<select name="resolution" id="resolution" onselect="setResolution();" onchange="setResolution();">
+<option value="">change resolution</option>
+<option value="800x600">800x600</option>
+<option value="1024x768">1024x768</option>
+<option value="1280x960">1280x960</option>
+</select>
+</div>
+</td></tr>
+
+
+</table>
+</div>
+
+
+
+
+
+
+
+<div style="float:left;"></div>
+<div style="float:left;"></div>
+<div style="float:left;"></div>
+<div style="float:left;"></div>
+</div>
+</div>
+
+<div style="clear: both;"> </div>
+<div style="float:left; width:550px;">
+
+
+<h3>Contour Line Construction</h3>
+<p style="width:500px;text-align: justify;margin-top:0px;">Set the latitude and longitude then click the button <b>[get data]</b>Also, you can change elevation manually.</p>
+
+<p style="width:500px;text-align: justify;">So, the contour lines computes the minima of the region but is further optimized by the region which has cost effective length from either of the buildings</p>
+
+<p style="width:500px;text-align: justify;">Makes use of Google Elevation API and Google Maps and Graham Scan Line Algorithm</p>
+
+<br>
+<br>
+</div>
+
+<div style="margin-top:0px;">
+<h3>Elevation Data<br></h3>
+<div id="plottingArea" style="float:left;">
+<textarea id='output' style="width:250px;height:40px;"></textarea>
+</div>
+<div>
+<span> min: </span><span id="min"></span><br>
+<span> max: </span><span id="max"></span>
+</div>
+</div>
+
+<div style="clear: both;"> </div>
+
+
+<div style="float:left;width:150px;">
+<h3>Save Data</h3>
+<textarea id="SaveDataOutput" style="width:100px"></textarea><br>
+<div style="font-size:12px;width:100px;">Copy data and save somewhere</div>
+</div>
+<div style="float:left;width:150px;">
+<h3>Load Data</h3>
+<textarea id="ImportDataTextArea" style="width:100px"></textarea><br>
+<div style=	"vertical-align:top;">
+<div style="font-size:12px;width:110px;">Paste data back here and click button below</div>
+<input type="button" onclick="importDataTextArea()" value="load data">
+</div>
+</div>
+
+
+
+<div style="clear: both;"> </div>
+
+
+
+<br><br>
+
+<div style="display:none;">
+<textarea id="example">456.0027770996094	443.2965087890625	429.1426696777344	414.7498779296875	414.3511352539062	417.9220581054688	415.2223815917969	413.7084350585938	405.35302734375	388.5974731445312
+449.9911804199219	438.4470520019531	407.1309204101562	378.8462829589844	383.6693420410156	408.8395690917969	414.0099792480469	409.8170776367188	400.5278930664062	389.0057373046875
+443.6612854003906	430.3794250488281	383.3893127441406	364.3740844726562	366.1557312011719	405.0480041503906	410.7735595703125	408.0912780761719	398.0733642578125	385.6193542480469
+435.7678833007812	413.6585998535156	366.5683288574219	367.1417541503906	372.6337585449219	404.255859375	408.4534912109375	400.6290588378906	389.99365234375	389.0680541992188
+430.077392578125	403.8782958984375	363.8173522949219	374.5804443359375	380.224365234375	391.8233337402344	406.8158264160156	394.9580688476562	385.5433959960938	395.5141296386719
+414.1217041015625	403.9285583496094	373.2948303222656	385.5459899902344	400.1412048339844	389.7887573242188	397.3312683105469	390.7570495605469	390.54345703125	420.5685729980469
+417.0869140625	406.6861572265625	377.2307434082031	405.473388671875	411.3975219726562	393.8242797851562	385.7615356445312	397.49853515625	413.5044860839844	455.2462768554688
+417.6539306640625	388.0929565429688	378.5909729003906	408.715576171875	412.7532043457031	405.5623779296875	401.9880981445312	418.5110778808594	450.2697143554688	484.039794921875
+418.5108947753906	384.3523864746094	384.2544250488281	408.0445251464844	418.4470520019531	434.948974609375	431.7111511230469	439.0687866210938	442.8277893066406	466.4598388671875
+415.3987426757812	377.9230651855469	386.2693481445312	406.736083984375	422.6658020019531	446.6331787109375	435.6122131347656	441.6178588867188	438.2799987792969	443.88623046875
+</textarea>
+
+Area to double check the requests that were sent:
+<div>
+<textarea id="requestHistory" style="width:400px;height:200px;"></textarea>
+<textarea id="debug" style="width:400px;height:200px;"></textarea>
+</div>
+</div>
+
+<h3 id="VHT">Save Contour Map as an SVG file</h3>
+<p style="width:500px;text-align: justify;margin-top:0px;">If you want to have the contour maps as an individual layer (e.g. to create overlays) you can copy the code underneath the image below and save it as an svg file. Please note, as for now, the drawing below is square and you may want to stretch it to cover the actual area in a map.</p>
+<table>
+<tr><td><div><textarea id="copySVG" style="width:500px;height:30px;"></textarea></div>
+<a id="executedownload" href="#">Download SVG file</a></td></tr>
+<tr><td><div><textarea id="copyKML" style="width:500px;height:30px;"></textarea></div>
+<a id="executedownloadKML" href="#">Download KML file</a></td></tr>
+<!--<tr><td><div id="contour" style="width:500px;height:500px;float: left;"></div></td></tr>-->
+<tr><td><div id="contour" style="float: left;"></div></td></tr>
+</table>
+
+<br><br>
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734417-1', 'auto');
+  ga('send', 'pageview');
+
+  
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}  
+  
+  
+  
+//execute download
+$( document ).ready(function() {
+	$( "#executedownload" ).click(function( event ) {
+		event.preventDefault();
+	  //console.log($("#copySVG").val());
+	  download("contours.svg", $("#copySVG").val())
+	});
+	$( "#executedownloadKML" ).click(function( event ) {
+		event.preventDefault();
+	  download("contours.kml", $("#copyKML").val())
+	});
+});
+</script>
+
+</body>
+
+
+
+</html>
+
+
+

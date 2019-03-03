@@ -261,4 +261,8 @@ def trial():
 def dashboard():
 	return render_template('dashboard.html')
 
+@app.route('/contour')
+def contour():
+	return render_template('contour_map.html', title='Contour Map')
+
 app.run(debug=True, port=5003)
