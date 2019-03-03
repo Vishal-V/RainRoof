@@ -48,7 +48,8 @@ Thus, we have opted for the OpenCV approach to accurately detect, estimate and m
 - #### 5. Non-Drinking Water Usage Research
     - This was a research oriented part of the project to estimate and validate the non-drinking water usage of a certain area that also takes the water usage and lifestyle into account.
     - The papers based on water usage was maonly for domestic purposes and vry few for industrial usage. Hence, our end-to-end pipeline is a B2C model rather than a B2B model
-![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/non.jpeg)
+  
 - #### 6. Basic Shared Rainwater Harvesting System (Phase 1)
+  - This is a fully working model of the Shared Rainwater Harvesting system that has an easy-to-use UI with accurate predictions using AI and Computer Vision models to predict the most optimal spot to detect the location to install the tank and also provides complete financial analysis and break-even time for the installation. Here, you can find the picture of the installation on our college hostel.
 ![ALT](https://github.com/Vishal-V/SIH-RainWater-Harvesting/blob/master/static/images/point.png)
-- #### 7. Water Credit System Plan (Phase 2)
+
