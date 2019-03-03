@@ -8,7 +8,7 @@ SIH submission for GoldMan Sachs' problem statement at NIT Calicut
 4. Calculator (Cost of installation + Break-Even analysis)
 5. Tax Benefits
 6. Non-Drinking Water Usage Prediction
-7. Ground Water Replenish Plan (Phase 1)
+7. Basic Shared Rainwater Harvesting System (Phase 1)
 8. Water Credit System Plan (Phase 2)
 ---
 ### Problem Statement
